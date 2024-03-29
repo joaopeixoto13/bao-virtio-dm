@@ -1,0 +1,37 @@
+[package]
+name = "bao-virtio"
+version = "0.1.0"
+edition = "2021"
+authors = ["João Peixoto <joaopeixotooficial@gmail.com>"]
+keywords = ["bao", "virtio", "virtualization", "security"]
+description = "Bao VirtIO"
+license = "Apache-2.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[workspace]
+members = [
+    "src/api",
+    "src/vmm",
+    "src/virtio",
+]
+
+[dependencies]
+field-offset = "0.3.4"
+lazy_static = "1.4.0"
+libc = ">=0.2.95"
+log = "0.4.17"
+seccompiler = "0.2.0"
+virtio = { path = "src/virtio" }
+api = { path = "src/api" }
+vmm = { path = "src/vmm" }
+
+# The [patch] section is used to override dependencies with custom implementations
+
+[patch.crates-io]
+vm-memory = { git = "https://github.com/joaopeixoto13/vm-memory", branch = "bao-hypervisor" }
+vhost = { git = "https://github.com/joaopeixoto13/vhost", branch = "vhost-user-frontend" }
+virtio-queue = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "bao-hypervisor" }
+virtio-device = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "bao-hypervisor" }
+virtio-blk = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "bao-hypervisor" }
+virtio-vsock = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "bao-hypervisor" }

@@ -1,0 +1,18 @@
+[package]
+name = "vmm"
+version = "0.1.0"
+edition = "2021"
+authors = ["João Peixoto <joaopeixotooficial@gmail.com>"]
+keywords = ["bao", "VMM", "Virtualization"]
+description = "Bao VMM"
+license = "Apache-2.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+api = { path = "../api" }
+virtio = { path = "../virtio" }
+event-manager = { version = "0.4.0", features = ["remote_endpoint"] }
+libc = ">=0.2.95"
+vm-device = "0.1.0"
+vmm-sys-util = "0.12.1"

@@ -1,0 +1,27 @@
+[package]
+name = "virtio"
+version = "0.1.0"
+edition = "2021"
+authors = ["João Peixoto <joaopeixotooficial@gmail.com>"]
+keywords = ["virtio", "vhost", "vhost-user"]
+description = "VirtIO devices"
+license = "Apache-2.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+event-manager = { version = "0.4.0", features = ["remote_endpoint"] }
+vm-device = "0.1.0"
+virtio-queue = "0.11.0"
+virtio-bindings = "0.2.1"
+vmm-sys-util = "0.12.1"
+virtio-device = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "bao-hypervisor" }
+virtio-blk = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "bao-hypervisor", features = ["backend-stdio"] }
+virtio-vsock = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "bao-hypervisor" }
+vhost = { version = "0.10.0", features = ["vhost-user-frontend", "vhost-kern", "vhost-user-backend", "vhost-vsock", "vhost-net"] }
+vhost-user-frontend = { git = "https://github.com/joaopeixoto13/vhost", branch = "vhost-user-frontend" }
+vm-memory = { version = "0.14.0", features = ["backend-mmap", "backend-atomic", "backend-bitmap"] }
+api = { path = "../api" }
+libc = ">=0.2.95"
+seccompiler = "0.2.0"
+log = "0.4.17"

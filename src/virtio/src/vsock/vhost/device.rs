@@ -6,9 +6,7 @@ use api::device_model::BaoDeviceModel;
 use api::error::{Error, Result};
 use api::types::DeviceConfig;
 use event_manager::{EventManager, MutEventSubscriber};
-use log::error;
 use std::borrow::{Borrow, BorrowMut};
-use std::cmp;
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::{Arc, Mutex};
 use vhost::vhost_kern::vsock::Vsock;
@@ -205,51 +203,6 @@ impl VirtioDeviceActions for VhostVsockDevice {
     fn reset(&mut self) -> Result<()> {
         // Not implemented for now.
         Ok(())
-    }
-
-    // This method is called when the driver wants to read information from the device configuration space.
-    // Since the device configuration space is managed by the device and the device can be implemented in
-    // different handlers outside of the VMM (vhost or vhost-user) we need to invoke dedicated logic.
-    fn read_config(&self, offset: usize, data: &mut [u8]) {
-        let config_space = &self.virtio.config.config_space;
-        let config_len = config_space.len();
-        if offset >= config_len {
-            error!("Failed to read from config space");
-            return;
-        }
-
-        // TODO: Are partial reads ok?
-        let end = cmp::min(offset.saturating_add(data.len()), config_len);
-        let read_len = end - offset;
-        // Cannot fail because the lengths are identical and we do bounds checking beforehand.
-        data[..read_len].copy_from_slice(&config_space[offset..end])
-    }
-
-    // This method is called when the driver wants to write information to the device configuration space.
-    // Since the device configuration space is managed by the device and the device can be implemented in
-    // different handlers outside of the VMM (vhost or vhost-user) we need to invoke dedicated logic.
-    fn write_config(&mut self, offset: usize, data: &[u8]) {
-        let config_space = &mut self.virtio.config.config_space;
-        let config_len = config_space.len();
-        if offset >= config_len {
-            error!("Failed to write to config space");
-            return;
-        }
-
-        // TODO: Are partial writes ok?
-        let end = cmp::min(offset.saturating_add(data.len()), config_len);
-        let write_len = end - offset;
-        // Cannot fail because the lengths are identical and we do bounds checking beforehand.
-        config_space[offset..end].copy_from_slice(&data[..write_len]);
-    }
-
-    // This method is called when the driver finishes the negotiation of the device features
-    // with the frontend device (selecting page 0). This method is crucial when the device handlers are
-    // implemented outside of the VMM (vhost or vhost-user) as the frontend device needs to negotiate the
-    // features with the backend device. Otherwise, the device is not prepared to support, for example,
-    // multiple queues and configuration space reads and writes.
-    fn negotiate_driver_features(&mut self) {
-        // Do nothing.
     }
 
     // This method is called when the driver needs to read the interrupt status from the device.

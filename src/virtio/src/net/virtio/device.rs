@@ -10,10 +10,7 @@ use api::device_model::BaoDeviceModel;
 use api::error::{Error, Result};
 use api::types::DeviceConfig;
 use event_manager::{EventManager, MutEventSubscriber};
-use log::error;
 use std::borrow::{Borrow, BorrowMut};
-use std::cmp;
-use std::sync::atomic::AtomicU8;
 use std::sync::{Arc, Mutex};
 use virtio_bindings::virtio_config::VIRTIO_F_IN_ORDER;
 use virtio_bindings::virtio_net::{
@@ -186,46 +183,6 @@ impl VirtioDeviceActions for VirtioNet {
     fn reset(&mut self) -> Result<()> {
         // Not implemented for now.
         Ok(())
-    }
-
-    fn read_config(&self, offset: usize, data: &mut [u8]) {
-        let config_space = &self.common.config.config_space;
-        let config_len = config_space.len();
-        if offset >= config_len {
-            error!("Failed to read from config space");
-            return;
-        }
-
-        // TODO: Are partial reads ok?
-        let end = cmp::min(offset.saturating_add(data.len()), config_len);
-        let read_len = end - offset;
-        // Cannot fail because the lengths are identical and we do bounds checking beforehand.
-        data[..read_len].copy_from_slice(&config_space[offset..end])
-    }
-
-    fn write_config(&mut self, offset: usize, data: &[u8]) {
-        let config_space = &mut self.common.config.config_space;
-        let config_len = config_space.len();
-        if offset >= config_len {
-            error!("Failed to write to config space");
-            return;
-        }
-
-        // TODO: Are partial writes ok?
-        let end = cmp::min(offset.saturating_add(data.len()), config_len);
-        let write_len = end - offset;
-        // Cannot fail because the lengths are identical and we do bounds checking beforehand.
-        config_space[offset..end].copy_from_slice(&data[..write_len]);
-    }
-
-    fn negotiate_driver_features(&mut self) {
-        // Do nothing here since the features are already negotiated.
-    }
-
-    fn interrupt_status(&self) -> &Arc<AtomicU8> {
-        // Simply return the interrupt status, since the backend (that is inside the VMM) will
-        // update it.
-        &self.common.config.interrupt_status
     }
 }
 

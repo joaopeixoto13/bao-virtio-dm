@@ -191,7 +191,7 @@ impl Vm {
                     {
                         Ok(()) => {}
                         Err(_err) => {
-                            println!("Invalid Mmio write operation");
+                            println!("Invalid Mmio write operation: {:?}", req);
                             return Err(Error::InvalidMmioOperation("write"));
                         }
                     }
@@ -205,7 +205,7 @@ impl Vm {
                     {
                         Ok(()) => {}
                         Err(_err) => {
-                            println!("Invalid Mmio read operation");
+                            println!("Invalid Mmio read operation: {:?}", req);
                             return Err(Error::InvalidMmioOperation("read"));
                         }
                     }

@@ -33,7 +33,7 @@ pub struct BaoIoRequest {
     pub access_width: u64,
     pub cpu_id: u64,
     pub vcpu_id: u64,
-    pub ret: u64,
+    pub ret: i32,
 }
 
 /// Struct representing a Bao I/O event file descriptor.

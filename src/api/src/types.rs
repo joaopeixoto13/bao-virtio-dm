@@ -14,7 +14,6 @@ use serde::{Deserialize, Serialize};
 /// # Attributes
 ///
 /// * `virtio_id` - Virtio instance ID.
-/// * `reg_off` - Register offset.
 /// * `addr` - Address.
 /// * `op` - Operation.
 /// * `value` - Value.
@@ -26,7 +25,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug)]
 pub struct BaoIoRequest {
     pub virtio_id: u64,
-    pub reg_off: u64,
     pub addr: u64,
     pub op: u64,
     pub value: u64,

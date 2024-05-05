@@ -155,7 +155,6 @@ impl BaoDeviceModel {
         // Create a new I/O request
         let mut request = BaoIoRequest {
             virtio_id: 0,
-            reg_off: 0,
             addr: 0,
             op: BAO_IO_ASK,
             value: 0,

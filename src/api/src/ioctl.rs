@@ -95,8 +95,8 @@ mod tests {
         assert_eq!(0x0000_A603, BAO_IOCTL_IO_CREATE_CLIENT());
         assert_eq!(0x0000_A604, BAO_IOCTL_IO_DESTROY_CLIENT());
         assert_eq!(0x0000_A605, BAO_IOCTL_IO_ATTACH_CLIENT());
-        assert_eq!(0xC048_A606, BAO_IOCTL_IO_REQUEST());
-        assert_eq!(0x4048_A607, BAO_IOCTL_IO_REQUEST_NOTIFY_COMPLETED());
+        assert_eq!(0xC040_A606, BAO_IOCTL_IO_REQUEST());
+        assert_eq!(0x4040_A607, BAO_IOCTL_IO_REQUEST_NOTIFY_COMPLETED());
         assert_eq!(0x0000_A608, BAO_IOCTL_IO_NOTIFY_GUEST());
         assert_eq!(0x4020_A609, BAO_IOCTL_IOEVENTFD());
         assert_eq!(0x4008_A60A, BAO_IOCTL_IRQFD());

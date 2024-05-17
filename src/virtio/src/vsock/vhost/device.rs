@@ -44,7 +44,7 @@ impl VirtioDeviceT for VhostVsockDevice {
     fn new(
         config: &DeviceConfig,
         device_manager: Arc<Mutex<IoManager>>,
-        _event_manager: Arc<Mutex<EventManager<Arc<Mutex<dyn MutEventSubscriber + Send>>>>>,
+        _event_manager: Option<Arc<Mutex<EventManager<Arc<Mutex<dyn MutEventSubscriber + Send>>>>>>,
         device_model: Arc<Mutex<BaoDeviceModel>>,
     ) -> Result<Arc<Mutex<Self>>> {
         // Extract the generic features and queues.

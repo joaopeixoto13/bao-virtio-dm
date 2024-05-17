@@ -287,7 +287,7 @@ pub trait VirtioDeviceT {
     fn new(
         config: &DeviceConfig,
         device_manager: Arc<Mutex<IoManager>>,
-        event_manager: Arc<Mutex<EventManager<Arc<Mutex<dyn MutEventSubscriber + Send>>>>>,
+        event_manager: Option<Arc<Mutex<EventManager<Arc<Mutex<dyn MutEventSubscriber + Send>>>>>>,
         device_model: Arc<Mutex<BaoDeviceModel>>,
     ) -> Result<Arc<Mutex<Self>>>;
 

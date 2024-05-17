@@ -29,7 +29,7 @@ pub struct Vm {
     device_model: Arc<Mutex<BaoDeviceModel>>,
     devices: Vec<VirtioDeviceType>,
     device_manager: Arc<Mutex<IoManager>>,
-    event_manager: Arc<Mutex<EventManager<Arc<Mutex<dyn MutEventSubscriber + Send>>>>>,
+    pub event_manager: Option<Arc<Mutex<EventManager<Arc<Mutex<dyn MutEventSubscriber + Send>>>>>>,
 }
 
 impl Vm {
@@ -47,11 +47,15 @@ impl Vm {
         // Create the device manager.
         let device_manager = Arc::new(Mutex::new(IoManager::new()));
 
-        // Create the event manager.
-        let event_manager = Arc::new(Mutex::new(
-            EventManager::<Arc<Mutex<dyn MutEventSubscriber + Send>>>::new()
-                .map_err(Error::EventManager)?,
-        ));
+        // Create the event manager if the data plane is virtio.
+        let event_manager = if config.data_plane == "virtio" {
+            Some(Arc::new(Mutex::new(
+                EventManager::<Arc<Mutex<dyn MutEventSubscriber + Send>>>::new()
+                    .map_err(Error::EventManager)?,
+            )))
+        } else {
+            None
+        };
 
         // Create the VM.
         let mut vm = Vm {
@@ -239,7 +243,13 @@ impl Vm {
     /// device.
     pub fn run_event_manager(self: Arc<Self>) {
         loop {
-            self.event_manager.lock().unwrap().run().unwrap();
+            self.event_manager
+                .as_ref()
+                .unwrap()
+                .lock()
+                .unwrap()
+                .run()
+                .unwrap();
         }
     }
 }

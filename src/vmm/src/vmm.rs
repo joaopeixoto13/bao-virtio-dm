@@ -79,15 +79,17 @@ impl Vmm {
             );
 
             // Create a new vCPU/thread to run the VM event manager.
-            let vm_evm = vm.clone();
-            self.vcpus.lock().unwrap().push(
-                Builder::new()
-                    .name(format!("vm_{}_evm", vm_evm.id))
-                    .spawn(move || {
-                        vm_evm.run_event_manager();
-                    })
-                    .unwrap(),
-            );
+            if vm.event_manager.is_some() {
+                let vm_evm = vm.clone();
+                self.vcpus.lock().unwrap().push(
+                    Builder::new()
+                        .name(format!("vm_{}_evm", vm_evm.id))
+                        .spawn(move || {
+                            vm_evm.run_event_manager();
+                        })
+                        .unwrap(),
+                );
+            }
         }
         Ok(())
     }

@@ -48,7 +48,7 @@ impl VirtioDeviceT for VirtioBlock {
     fn new(
         config: &DeviceConfig,
         device_manager: Arc<Mutex<IoManager>>,
-        event_manager: Arc<Mutex<EventManager<Arc<Mutex<dyn MutEventSubscriber + Send>>>>>,
+        event_manager: Option<Arc<Mutex<EventManager<Arc<Mutex<dyn MutEventSubscriber + Send>>>>>>,
         device_model: Arc<Mutex<BaoDeviceModel>>,
     ) -> Result<Arc<Mutex<Self>>> {
         // Extract the generic features and queues.
@@ -67,7 +67,7 @@ impl VirtioDeviceT for VirtioBlock {
         let common_device = VirtioDeviceCommon::new(config, device_model, virtio_cfg).unwrap();
 
         // Create a remote endpoint object, that allows interacting with the VM EventManager from a different thread.
-        let remote_endpoint = event_manager.lock().unwrap().remote_endpoint();
+        let remote_endpoint = event_manager.unwrap().lock().unwrap().remote_endpoint();
 
         // Create the block device.
         let block = Arc::new(Mutex::new(VirtioBlock {

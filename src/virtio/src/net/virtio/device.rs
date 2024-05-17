@@ -2,14 +2,16 @@ use super::bindings;
 use super::queue_handler::QueueHandler;
 use super::simple_handler::SimpleHandler;
 use super::tap::Tap;
-use crate::device::{SingleFdSignalQueue, VirtioDeviceT};
+use crate::device::{SingleFdSignalQueue, Subscriber, VirtioDeviceT};
 use crate::device::{VirtioDevType, VirtioDeviceCommon};
 use crate::net::utils::mac_address_to_bytes;
 use crate::net::virtio::VIRTIO_NET_HDR_SIZE;
 use api::device_model::BaoDeviceModel;
 use api::error::{Error, Result};
 use api::types::DeviceConfig;
-use event_manager::{EventManager, MutEventSubscriber};
+use event_manager::{
+    EventManager, MutEventSubscriber, RemoteEndpoint, Result as EvmgrResult, SubscriberId,
+};
 use std::borrow::{Borrow, BorrowMut};
 use std::sync::{Arc, Mutex};
 use virtio_bindings::virtio_config::VIRTIO_F_IN_ORDER;
@@ -31,9 +33,11 @@ const VIRTIO_F_RING_EVENT_IDX: u64 = 29;
 /// # Attributes
 ///
 /// * `common` - Virtio common device.
+/// * `endpoint` - The remote subscriber endpoint.
 /// * `tap_name` - Name of the tap device.
 pub struct VirtioNet {
     pub common: VirtioDeviceCommon,
+    pub endpoint: RemoteEndpoint<Subscriber>,
     pub tap_name: String,
 }
 
@@ -57,12 +61,15 @@ impl VirtioDeviceT for VirtioNet {
         let virtio_cfg = VirtioConfig::new(device_features, queues, config_space);
 
         // Create the generic device.
-        let common_device =
-            VirtioDeviceCommon::new(config, event_manager, device_model, virtio_cfg).unwrap();
+        let common_device = VirtioDeviceCommon::new(config, device_model, virtio_cfg).unwrap();
+
+        // Create a remote endpoint object, that allows interacting with the VM EventManager from a different thread.
+        let remote_endpoint = event_manager.lock().unwrap().remote_endpoint();
 
         // Create the net device.
         let net = Arc::new(Mutex::new(VirtioNet {
             common: common_device,
+            endpoint: remote_endpoint,
             tap_name: config.tap_name.clone().unwrap(),
         }));
 
@@ -174,10 +181,20 @@ impl VirtioDeviceActions for VirtioNet {
             tx_ioevent: ioevents.remove(0),
         }));
 
-        // Finalize the activation by calling the generic `finalize_activate` method.
-        let ret = self.common.finalize_activate(handler);
+        // Register the queue handler with the `EventManager`. We could record the `sub_id`
+        // (and/or keep a handler clone) for further interaction (i.e. to remove the subscriber at
+        // a later time, retrieve state, etc).
+        let _sub_id = self
+            .endpoint
+            .call_blocking(move |mgr| -> EvmgrResult<SubscriberId> {
+                Ok(mgr.add_subscriber(handler))
+            })
+            .unwrap();
 
-        Ok(ret.unwrap())
+        // Set the device as activated.
+        self.common.config.device_activated = true;
+
+        Ok(())
     }
 
     fn reset(&mut self) -> Result<()> {

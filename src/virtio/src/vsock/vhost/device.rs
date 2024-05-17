@@ -44,7 +44,7 @@ impl VirtioDeviceT for VhostVsockDevice {
     fn new(
         config: &DeviceConfig,
         device_manager: Arc<Mutex<IoManager>>,
-        event_manager: Arc<Mutex<EventManager<Arc<Mutex<dyn MutEventSubscriber + Send>>>>>,
+        _event_manager: Arc<Mutex<EventManager<Arc<Mutex<dyn MutEventSubscriber + Send>>>>>,
         device_model: Arc<Mutex<BaoDeviceModel>>,
     ) -> Result<Arc<Mutex<Self>>> {
         // Extract the generic features and queues.
@@ -60,8 +60,7 @@ impl VirtioDeviceT for VhostVsockDevice {
         let virtio_cfg = VirtioConfig::new(common_features | device_features, queues, config_space);
 
         // Create the generic device.
-        let mut common_device =
-            VirtioDeviceCommon::new(config, event_manager, device_model, virtio_cfg).unwrap();
+        let mut common_device = VirtioDeviceCommon::new(config, device_model, virtio_cfg).unwrap();
 
         // Extract the VirtioDeviceCommon MMIO range.
         let range = common_device.mmio.range;
@@ -196,6 +195,9 @@ impl VirtioDeviceActions for VhostVsockDevice {
 
         // Start the vsock device.
         self.vsock.start().unwrap();
+
+        // Set the device as activated.
+        self.virtio.config.device_activated = true;
 
         Ok(())
     }

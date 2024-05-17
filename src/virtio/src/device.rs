@@ -11,9 +11,7 @@ use api::defines::BAO_IOEVENTFD_FLAG_DATAMATCH;
 use api::device_model::BaoDeviceModel;
 use api::error::{Error, Result};
 use api::types::DeviceConfig;
-use event_manager::{
-    EventManager, MutEventSubscriber, RemoteEndpoint, Result as EvmgrResult, SubscriberId,
-};
+use event_manager::{EventManager, MutEventSubscriber};
 use libc::{MAP_SHARED, PROT_READ, PROT_WRITE};
 use std::fmt::{self, Debug};
 use std::fs::OpenOptions;
@@ -56,14 +54,12 @@ pub enum VirtioDeviceType {
 ///
 /// * `config` - The common virtio configuration.
 /// * `mmio` - The MMIO configuration.
-/// * `endpoint` - The remote subscriber endpoint.
 /// * `irqfd` - The interrupt file descriptor.
 /// * `device_model` - The device model.
 /// * `regions` - The memory regions of the device.
 pub struct VirtioDeviceCommon {
     pub config: VirtioConfig<Queue>,
     pub mmio: MmioConfig,
-    pub endpoint: RemoteEndpoint<Subscriber>,
     pub irqfd: EventFd,
     pub device_model: Arc<Mutex<BaoDeviceModel>>,
     pub regions: Vec<GuestRegionMmap>,
@@ -76,7 +72,6 @@ impl VirtioDeviceCommon {
     ///
     /// * `config` - The device configuration.
     /// * `device_manager` - The device manager.
-    /// * `event_manager` - The event manager.
     /// * `device_model` - The device model.
     ///
     /// # Returns
@@ -84,17 +79,11 @@ impl VirtioDeviceCommon {
     /// A `Result` containing the new device.
     pub fn new(
         config: &DeviceConfig,
-        event_manager: Arc<Mutex<EventManager<Arc<Mutex<dyn MutEventSubscriber + Send>>>>>,
         device_model: Arc<Mutex<BaoDeviceModel>>,
         virtio: VirtioConfig<Queue>,
     ) -> Result<Self> {
         // Create the MMIO configuration.
         let mmio = MmioConfig::new(config.mmio_addr, 0x200, config.irq).unwrap();
-
-        // Create a remote endpoint object, that allows interacting with the VM EventManager from a different thread.
-        // This is only needed for the Virtio data plane, since the Vhost and VhostUser data planes do not need to interact with the EventManager
-        // (the backend handler is outside of the VMM).
-        let remote_endpoint = event_manager.lock().unwrap().remote_endpoint();
 
         // Create a new EventFd for the interrupt (irqfd).
         let irqfd = EventFd::new(0).unwrap();
@@ -103,7 +92,6 @@ impl VirtioDeviceCommon {
         let mut device = VirtioDeviceCommon {
             config: virtio,
             mmio,
-            endpoint: remote_endpoint,
             irqfd: irqfd,
             device_model,
             regions: Vec::new(),
@@ -178,36 +166,6 @@ impl VirtioDeviceCommon {
         }
 
         Ok(ioevents)
-    }
-
-    /// Perform the final steps of device activation based on the inner configuration and the
-    /// provided subscriber that's going to handle the device queues.
-    ///
-    /// Note: This method is unnecessary for the Vhost and VhostUser data planes since the
-    /// backend handler is outside of the VMM.
-    ///
-    /// # Arguments
-    ///
-    /// * `handler` - The subscriber that's going to handle the device queues.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` containing operation result.
-    pub fn finalize_activate(&mut self, handler: Subscriber) -> Result<()> {
-        // Register the queue handler with the `EventManager`. We could record the `sub_id`
-        // (and/or keep a handler clone) for further interaction (i.e. to remove the subscriber at
-        // a later time, retrieve state, etc).
-        let _sub_id = self
-            .endpoint
-            .call_blocking(move |mgr| -> EvmgrResult<SubscriberId> {
-                Ok(mgr.add_subscriber(handler))
-            })
-            .unwrap();
-
-        // Set the device as activated.
-        self.config.device_activated = true;
-
-        Ok(())
     }
 
     /// Method to map a region.

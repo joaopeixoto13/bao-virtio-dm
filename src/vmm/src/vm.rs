@@ -5,6 +5,7 @@ use api::types::DeviceConfig;
 use event_manager::{EventManager, MutEventSubscriber};
 use std::sync::{Arc, Mutex};
 use virtio::block::virtio::device::VirtioBlock;
+use virtio::console::virtio::device::VirtioConsole;
 use virtio::device::VirtioDeviceT;
 use virtio::device::{VirtioDataPlane, VirtioDevType, VirtioDeviceType};
 use virtio::fs::vhost_user::device::VhostUserFs;
@@ -139,6 +140,17 @@ impl Vm {
                 )),
                 VirtioDataPlane::Vhost => Ok(VirtioDeviceType::VhostNet(
                     VhostNet::new(config, device_manager, event_manager, device_model).unwrap(),
+                )),
+                _ => Err(Error::WrongDeviceConfiguration(
+                    VirtioDevType::to_string(&device_type),
+                    VirtioDataPlane::to_string(&data_plane),
+                )),
+            },
+            // Console device.
+            VirtioDevType::Console => match data_plane {
+                VirtioDataPlane::Virtio => Ok(VirtioDeviceType::VirtioConsole(
+                    VirtioConsole::new(config, device_manager, event_manager, device_model)
+                        .unwrap(),
                 )),
                 _ => Err(Error::WrongDeviceConfiguration(
                     VirtioDevType::to_string(&device_type),

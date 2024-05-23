@@ -1,4 +1,5 @@
 use super::block::virtio::device::VirtioBlock;
+use super::console::virtio::device::VirtioConsole;
 use super::fs::vhost_user::device::VhostUserFs;
 use super::mmio::MmioConfig;
 use super::mmio::VIRTIO_MMIO_INT_VRING;
@@ -45,6 +46,7 @@ pub enum VirtioDeviceType {
     VhostNet(Arc<Mutex<VhostNet>>),
     VhostUserVsock(Arc<Mutex<VhostUserVsock>>),
     VirtioNet(Arc<Mutex<VirtioNet>>),
+    VirtioConsole(Arc<Mutex<VirtioConsole>>),
     Unknown,
 }
 
@@ -481,7 +483,7 @@ impl VirtioDevType {
         match *self {
             VirtioDevType::Net => (2, 1024),
             VirtioDevType::Block => (1, 256),
-            VirtioDevType::Console => (0, 0),
+            VirtioDevType::Console => (2, 1024),
             VirtioDevType::Rng => (1, 1024),
             VirtioDevType::Balloon => (0, 0),
             VirtioDevType::Gpu => (0, 0),

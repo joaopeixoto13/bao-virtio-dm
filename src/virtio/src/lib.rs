@@ -1,4 +1,5 @@
 pub mod block;
+pub mod console;
 pub mod device;
 pub mod fs;
 pub mod mmio;

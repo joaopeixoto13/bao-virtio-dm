@@ -60,9 +60,6 @@ impl BaoDeviceModel {
             id,
         };
 
-        // Create the I/O client.
-        device_model.create_io_client().unwrap();
-
         Ok(device_model)
     }
 
@@ -83,44 +80,6 @@ impl BaoDeviceModel {
                 return Err(Error::OpenFdFailed(
                     "guest_fd",
                     std::io::Error::last_os_error(),
-                ));
-            }
-        }
-        Ok(())
-    }
-
-    /// Create an I/O client.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` containing the result of the operation.
-    fn create_io_client(&self) -> Result<()> {
-        unsafe {
-            let ret = ioctl(self.devmodel_fd, BAO_IOCTL_IO_CREATE_CLIENT());
-
-            if ret < 0 {
-                return Err(Error::BaoIoctlError(
-                    std::io::Error::last_os_error(),
-                    std::any::type_name::<Self>(),
-                ));
-            }
-        }
-        Ok(())
-    }
-
-    /// Destroy an I/O client.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` containing the result of the operation.
-    pub fn destroy_io_client(&self) -> Result<()> {
-        unsafe {
-            let ret = ioctl(self.devmodel_fd, BAO_IOCTL_IO_DESTROY_CLIENT());
-
-            if ret < 0 {
-                return Err(Error::BaoIoctlError(
-                    std::io::Error::last_os_error(),
-                    std::any::type_name::<Self>(),
                 ));
             }
         }

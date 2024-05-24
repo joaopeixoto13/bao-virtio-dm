@@ -132,26 +132,7 @@ impl BaoDeviceModel {
     /// # Returns
     ///
     /// A `Result` containing the result of the operation.
-    pub fn attach_io_client(&self) -> Result<()> {
-        unsafe {
-            let ret = ioctl(self.devmodel_fd, BAO_IOCTL_IO_ATTACH_CLIENT());
-
-            if ret < 0 {
-                return Err(Error::BaoIoctlError(
-                    std::io::Error::last_os_error(),
-                    std::any::type_name::<Self>(),
-                ));
-            }
-        }
-        Ok(())
-    }
-
-    /// Requests an I/O request.
-    ///
-    /// # Return
-    ///
-    /// * `Result<BaoIoRequest>` - A Result containing the BaoIoRequest object on success.
-    pub fn request_io(&self) -> Result<BaoIoRequest> {
+    pub fn attach_io_client(&self) -> Result<BaoIoRequest> {
         // Create a new I/O request
         let mut request = BaoIoRequest {
             virtio_id: 0,
@@ -163,9 +144,8 @@ impl BaoDeviceModel {
             vcpu_id: 0,
             ret: 0,
         };
-        // Request the I/O request
         unsafe {
-            let ret = ioctl(self.devmodel_fd, BAO_IOCTL_IO_REQUEST(), &mut request);
+            let ret = ioctl(self.devmodel_fd, BAO_IOCTL_IO_ATTACH_CLIENT(), &mut request);
 
             if ret < 0 {
                 return Err(Error::BaoIoctlError(

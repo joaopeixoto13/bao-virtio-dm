@@ -179,15 +179,7 @@ impl Vm {
     pub fn run_io(self: Arc<Self>) -> Result<()> {
         loop {
             //Attach the I/O client.
-            match self.device_model.lock().unwrap().attach_io_client() {
-                Ok(()) => {}
-                Err(err) => {
-                    return Err(err);
-                }
-            }
-
-            // Request the I/O client
-            let mut req = match self.device_model.lock().unwrap().request_io() {
+            let mut req = match self.device_model.lock().unwrap().attach_io_client() {
                 Ok(req) => req,
                 Err(err) => {
                     return Err(err);

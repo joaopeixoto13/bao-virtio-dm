@@ -1,3 +1,4 @@
+use api::defines::BAO_IO_DISPATCHER_DEV_NODE;
 use api::error::{Error, Result};
 use api::types::VMMConfig;
 use std::fs::OpenOptions;
@@ -11,7 +12,7 @@ use super::vm::Vm;
 ///
 /// # Attributes
 ///
-/// * `fd` - The file descriptor for the VMM (e.g. /dev/bao).
+/// * `fd` - The file descriptor for the VMM (e.g. /dev/bao-io-dispatcher).
 /// * `vms` - The list of VMs.
 /// * `vcpus` - The list of vCPUs/threads.
 pub struct Vmm {
@@ -37,8 +38,10 @@ impl TryFrom<VMMConfig> for Vmm {
         let fd = OpenOptions::new()
             .read(true)
             .write(true)
-            .open("/dev/bao")
-            .map_err(|_e| Error::OpenFdFailed("/dev/bao", std::io::Error::last_os_error()))?;
+            .open(BAO_IO_DISPATCHER_DEV_NODE)
+            .map_err(|_e| {
+                Error::OpenFdFailed(BAO_IO_DISPATCHER_DEV_NODE, std::io::Error::last_os_error())
+            })?;
 
         // Create the VMM.
         let vmm = Vmm {

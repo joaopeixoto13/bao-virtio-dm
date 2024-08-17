@@ -146,29 +146,6 @@ impl BaoDeviceModel {
         Ok(())
     }
 
-    /// Notifies the guest about a Used Buffer Notification or
-    /// a Configuration Change Notification.
-    ///
-    /// # Return
-    ///
-    /// * `Result<()>` - A Result containing Ok(()) on success, or an Error on failure.
-    pub fn notify_guest(&self) -> Result<()> {
-        // Notify the guest
-        unsafe {
-            let ret = ioctl(self.devmodel_fd, BAO_IOCTL_IO_NOTIFY_GUEST());
-
-            if ret < 0 {
-                return Err(Error::BaoIoctlError(
-                    std::io::Error::last_os_error(),
-                    std::any::type_name::<Self>(),
-                ));
-            }
-        }
-
-        // Return Ok(()) on success
-        Ok(())
-    }
-
     /// Registers an ioeventfd within the VM (guest to host interrupt)
     ///
     /// # Arguments

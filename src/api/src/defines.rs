@@ -25,6 +25,9 @@ pub const BAO_IO_REQUEST_MAX: usize = 16;
 /// Bao IOCTL Type
 pub const BAO_IOCTL_TYPE: u32 = 0xA6;
 
+/// Bao I/O Dispatcher Device Node
+pub const BAO_IO_DISPATCHER_DEV_NODE: &str = "/dev/bao-io-dispatcher";
+
 /// Bao I/O Event File Descriptor Data Match Flag
 pub const BAO_IOEVENTFD_FLAG_DATAMATCH: u32 = 1 << 1;
 /// Bao I/O Event File Descriptor Deassign Flag

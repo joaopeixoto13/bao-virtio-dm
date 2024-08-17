@@ -9,7 +9,7 @@
 
 use super::defines::BAO_IOCTL_TYPE;
 use super::types::{BaoIoEventFd, BaoIoRequest, BaoIrqFd};
-use vmm_sys_util::ioctl::{_IOC_NONE, _IOC_READ, _IOC_WRITE};
+use vmm_sys_util::ioctl::{_IOC_READ, _IOC_WRITE};
 use vmm_sys_util::ioctl_ioc_nr;
 
 ioctl_ioc_nr!(
@@ -41,24 +41,17 @@ ioctl_ioc_nr!(
     std::mem::size_of::<BaoIoRequest>() as u32
 );
 ioctl_ioc_nr!(
-    BAO_IOCTL_IO_NOTIFY_GUEST,
-    _IOC_NONE,
-    BAO_IOCTL_TYPE,
-    5 as u32,
-    0
-);
-ioctl_ioc_nr!(
     BAO_IOCTL_IOEVENTFD,
     _IOC_WRITE,
     BAO_IOCTL_TYPE,
-    6 as u32,
+    5 as u32,
     std::mem::size_of::<BaoIoEventFd>() as u32
 );
 ioctl_ioc_nr!(
     BAO_IOCTL_IRQFD,
     _IOC_WRITE,
     BAO_IOCTL_TYPE,
-    7 as u32,
+    6 as u32,
     std::mem::size_of::<BaoIrqFd>() as u32
 );
 
@@ -73,8 +66,7 @@ mod tests {
         assert_eq!(0x4004_A602, BAO_IOCTL_VM_VIRTIO_BACKEND_DESTROY());
         assert_eq!(0xC040_A603, BAO_IOCTL_IO_ATTACH_CLIENT());
         assert_eq!(0x4040_A604, BAO_IOCTL_IO_REQUEST_NOTIFY_COMPLETED());
-        assert_eq!(0x0000_A605, BAO_IOCTL_IO_NOTIFY_GUEST());
-        assert_eq!(0x4020_A606, BAO_IOCTL_IOEVENTFD());
-        assert_eq!(0x4008_A607, BAO_IOCTL_IRQFD());
+        assert_eq!(0x4020_A605, BAO_IOCTL_IOEVENTFD());
+        assert_eq!(0x4008_A606, BAO_IOCTL_IRQFD());
     }
 }

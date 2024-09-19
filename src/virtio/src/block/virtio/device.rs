@@ -15,6 +15,7 @@ use event_manager::{
 use std::borrow::{Borrow, BorrowMut};
 use std::sync::{Arc, Mutex};
 use virtio_bindings::virtio_blk::{VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_RO};
+use virtio_bindings::virtio_config::VIRTIO_F_IN_ORDER;
 use virtio_blk::stdio_executor::StdIoBackend;
 use virtio_device::{VirtioConfig, VirtioDeviceActions, VirtioDeviceType, VirtioMmioDevice};
 use virtio_queue::Queue;
@@ -94,7 +95,7 @@ impl VirtioDeviceT for VirtioBlock {
     }
 
     fn device_features(config: &DeviceConfig) -> Result<u64> {
-        let mut features = 0;
+        let mut features = 1 << VIRTIO_F_IN_ORDER;
 
         // Set the read-only feature.
         if config.read_only.unwrap() {

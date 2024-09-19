@@ -27,12 +27,7 @@ use vm_device::device_manager::IoManager;
 use vm_memory::{guest_memory::FileOffset, GuestAddress, MmapRegion};
 use vmm_sys_util::eventfd::{EventFd, EFD_NONBLOCK};
 
-use virtio_bindings::virtio_config::{
-    VIRTIO_F_IN_ORDER, VIRTIO_F_IOMMU_PLATFORM, VIRTIO_F_VERSION_1,
-};
-
-/// This feature enables the used_event and the avail_event (Notification Suppression).
-pub const VIRTIO_F_RING_EVENT_IDX: u32 = 29;
+use virtio_bindings::virtio_config::{VIRTIO_F_IOMMU_PLATFORM, VIRTIO_F_VERSION_1};
 
 /// Type alias for the subscriber.
 pub type Subscriber = Arc<Mutex<dyn MutEventSubscriber + Send>>;
@@ -269,7 +264,7 @@ pub trait VirtioDeviceT {
             .unwrap();
 
         // Define the generic device features.
-        let device_features = 1 << VIRTIO_F_VERSION_1 | 1 << VIRTIO_F_IOMMU_PLATFORM | 1 << VIRTIO_F_IN_ORDER /*| 1 << VIRTIO_F_RING_EVENT_IDX*/;
+        let device_features = 1 << VIRTIO_F_VERSION_1 | 1 << VIRTIO_F_IOMMU_PLATFORM;
 
         Ok((device_features, queues_converted))
     }

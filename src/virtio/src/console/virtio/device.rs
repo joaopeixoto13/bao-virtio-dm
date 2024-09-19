@@ -10,6 +10,7 @@ use event_manager::{
 };
 use std::borrow::{Borrow, BorrowMut};
 use std::sync::{Arc, Mutex};
+use virtio_bindings::virtio_config::VIRTIO_F_IN_ORDER;
 use virtio_console::console::Console;
 use virtio_device::{VirtioConfig, VirtioDeviceActions, VirtioDeviceType, VirtioMmioDevice};
 use virtio_queue::Queue;
@@ -74,7 +75,7 @@ impl VirtioDeviceT for VirtioConsole {
     }
 
     fn device_features(_config: &DeviceConfig) -> Result<u64> {
-        Ok(0)
+        Ok(1 << VIRTIO_F_IN_ORDER)
     }
 
     fn config_space(_config: &DeviceConfig) -> Result<Vec<u8>> {

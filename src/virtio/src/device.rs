@@ -15,8 +15,9 @@ use api::types::DeviceConfig;
 use event_manager::{EventManager, MutEventSubscriber};
 use libc::{MAP_SHARED, PROT_READ, PROT_WRITE};
 use std::fmt::{self, Debug};
-use std::fs::OpenOptions;
+use std::fs::File;
 use std::os::fd::AsRawFd;
+use std::os::unix::io::{FromRawFd, RawFd};
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::{Arc, Mutex};
 use vhost_user_frontend::{GuestMemoryMmap, GuestRegionMmap};
@@ -85,10 +86,21 @@ impl VirtioDeviceCommon {
         virtio: VirtioConfig<Queue>,
     ) -> Result<Self> {
         // Create the MMIO configuration.
-        let mmio = MmioConfig::new(config.mmio_addr, 0x200, config.irq).unwrap();
+        let mmio = MmioConfig::new(
+            config.mmio_addr,
+            0x200,
+            device_model.lock().unwrap().clone().irq,
+        )
+        .unwrap();
 
         // Create a new EventFd for the interrupt (irqfd).
         let irqfd = EventFd::new(0).unwrap();
+
+        // Extract the device model fields.
+        let file =
+            unsafe { File::from_raw_fd(device_model.lock().unwrap().clone().devmodel_fd as RawFd) };
+        let shemem_addr = device_model.lock().unwrap().clone().shmem_addr;
+        let shemem_size = device_model.lock().unwrap().clone().shmem_size;
 
         // Create the device object.
         let mut device = VirtioDeviceCommon {
@@ -103,12 +115,7 @@ impl VirtioDeviceCommon {
         // The mmap_offset is set to 0 because the base address of Bao's shared memory driver is
         // already defined statically in the backend device tree.
         device
-            .map_region(
-                0,
-                &config.shmem_path,
-                config.shmem_addr,
-                config.shmem_size as usize,
-            )
+            .map_region(0, file, shemem_addr, shemem_size as usize)
             .unwrap();
 
         // Register the Irqfd (Host to Guest notification).
@@ -175,7 +182,7 @@ impl VirtioDeviceCommon {
     /// # Arguments
     ///
     /// * `mmap_offset` - Offset of the mmap region.
-    /// * `path` - Path to the file.
+    /// * `file` - File descriptor of the region.
     /// * `base_addr` - Base address of the region.
     /// * `size` - Size of the region.
     ///
@@ -185,17 +192,10 @@ impl VirtioDeviceCommon {
     fn map_region(
         &mut self,
         mmap_offset: u64,
-        path: &str,
+        file: File,
         base_addr: u64,
         size: usize,
     ) -> Result<()> {
-        // Open the file.
-        let file = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open(path)
-            .unwrap();
-
         // Create a mmap region with proper permissions.
         let mmap_region = match MmapRegion::build(
             Some(FileOffset::new(file, mmap_offset)),

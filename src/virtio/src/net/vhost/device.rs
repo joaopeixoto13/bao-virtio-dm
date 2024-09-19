@@ -176,11 +176,13 @@ impl VirtioDeviceActions for VhostNet {
         // Set the current process as the owner of the file descriptor.
         self.net.set_owner().unwrap();
 
+        // Get the device features.
+        let supported_backend_features = self.net.get_features().unwrap();
+
         // Set the device features.
-        let features = self.net.get_features().unwrap();
-        println!("Get Features: {:x}", features);
-        println!("Set Features: {:x}", self.vhost.features());
-        self.net.set_features(self.vhost.features()).unwrap();
+        self.net
+            .set_features(self.vhost.features() & supported_backend_features)
+            .unwrap();
 
         // Update the memory table.
         self.net

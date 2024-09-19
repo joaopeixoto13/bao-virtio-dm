@@ -140,8 +140,13 @@ impl VirtioDeviceActions for VhostVsockDevice {
         // Set the current process as the owner of the file descriptor.
         self.vsock.set_owner().unwrap();
 
+        // Get the device features.
+        let supported_backend_features = self.vsock.get_features().unwrap();
+
         // Set the device features.
-        self.vsock.set_features(self.vhost.features()).unwrap();
+        self.vsock
+            .set_features(self.vhost.features() & supported_backend_features)
+            .unwrap();
 
         // Update the memory table.
         self.vsock

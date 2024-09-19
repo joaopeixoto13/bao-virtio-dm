@@ -8,7 +8,7 @@
 use crate::defines::{BAO_IO_ASK, BAO_IRQFD_FLAG_ASSIGN};
 use crate::error::{Error, Result};
 use crate::ioctl::*;
-use crate::types::{BaoIoEventFd, BaoIoRequest, BaoIrqFd};
+use crate::types::{BaoDMInfo, BaoIoEventFd, BaoIoRequest, BaoIrqFd};
 use libc::ioctl;
 use std::os::fd::AsRawFd;
 use vmm_sys_util::errno;
@@ -26,6 +26,9 @@ pub struct BaoDeviceModel {
     pub fd: i32,
     pub devmodel_fd: i32,
     pub id: u16,
+    pub shmem_addr: u64,
+    pub shmem_size: u64,
+    pub irq: u32,
 }
 
 impl BaoDeviceModel {
@@ -40,14 +43,20 @@ impl BaoDeviceModel {
     ///
     /// A `Result` containing the result of the operation.
     pub fn new(fd: i32, id: u16) -> Result<Self> {
-        let devmodel_fd;
+        let mut dm_info = BaoDMInfo {
+            id: id as u32,
+            shmem_addr: 0,
+            shmem_size: 0,
+            irq: 0,
+            fd: 0,
+        };
 
         unsafe {
-            devmodel_fd = ioctl(fd, BAO_IOCTL_VM_VIRTIO_BACKEND_CREATE(), &(id as i32));
+            let ret = ioctl(fd, BAO_IOCTL_IO_DM_GET_INFO(), &mut dm_info);
 
-            if devmodel_fd < 0 {
+            if ret < 0 {
                 return Err(Error::OpenFdFailed(
-                    "devmodel_fd",
+                    "dm_info",
                     std::io::Error::last_os_error(),
                 ));
             }
@@ -55,35 +64,15 @@ impl BaoDeviceModel {
 
         // Create the device model object.
         let device_model = BaoDeviceModel {
-            fd,
-            devmodel_fd,
-            id,
+            fd: fd,
+            devmodel_fd: dm_info.fd,
+            id: id,
+            shmem_addr: dm_info.shmem_addr,
+            shmem_size: dm_info.shmem_size,
+            irq: dm_info.irq,
         };
 
         Ok(device_model)
-    }
-
-    /// Destroy the device model.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` containing the result of the operation.
-    pub fn destroy(&self) -> Result<()> {
-        unsafe {
-            let ret = ioctl(
-                self.devmodel_fd,
-                BAO_IOCTL_VM_VIRTIO_BACKEND_DESTROY(),
-                &(self.id as i32),
-            );
-
-            if ret < 0 {
-                return Err(Error::OpenFdFailed(
-                    "guest_fd",
-                    std::io::Error::last_os_error(),
-                ));
-            }
-        }
-        Ok(())
     }
 
     /// Attach the I/O client to the VM.

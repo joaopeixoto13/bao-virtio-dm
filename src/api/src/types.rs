@@ -66,6 +66,24 @@ pub struct BaoIrqFd {
     pub flags: u32,
 }
 
+/// Struct representing a Bao device model information.
+///
+/// # Attributes
+///
+/// * `id` - Device model ID.
+/// * `shmem_addr` - Shared memory address.
+/// * `shmem_size` - Shared memory size.
+/// * `irq` - Device model interrupt.
+/// * `fd` - Device model file descriptor.
+#[repr(C)]
+pub struct BaoDMInfo {
+    pub id: u32,
+    pub shmem_addr: u64,
+    pub shmem_size: u64,
+    pub irq: u32,
+    pub fd: i32,
+}
+
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 /// Struct representing a Device configuration.
 ///
@@ -91,11 +109,7 @@ pub struct DeviceConfig {
     pub id: u32,
     #[serde(rename = "type")]
     pub device_type: String,
-    pub shmem_addr: u64,
-    pub shmem_size: u64,
-    pub shmem_path: String,
     pub mmio_addr: u64,
-    pub irq: u32,
     pub data_plane: String,
     // Block device specific fields
     pub file_path: Option<String>,

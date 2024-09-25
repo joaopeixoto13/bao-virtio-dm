@@ -29,5 +29,5 @@ devices:
 2. Launch the **device model** with VirtIO Block device: 
 
 ```
-nohup bao-virtio --config /PATH/TO/YOUR/config-virtio-block.yaml > /etc/bao-virtio.log 2>&1 &
+nohup bao-virtio-dm --config /PATH/TO/YOUR/config-virtio-block.yaml > /etc/bao-virtio-dm.log 2>&1 &
 ```

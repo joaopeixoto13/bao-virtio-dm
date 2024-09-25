@@ -14,7 +14,7 @@ To begin utilizing VirtIO device support in Bao Hypervisor, follow these steps:
 1. Clone this repository to your local environment.
 
 ```
-git clone git@github.com:joaopeixoto13/bao-virtio.git
+git clone git@github.com:joaopeixoto13/bao-virtio-dm.git
 ```
 
 2. Build the source code (e.g. Aarch64):

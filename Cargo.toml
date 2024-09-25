@@ -1,5 +1,5 @@
 [package]
-name = "bao-virtio"
+name = "bao-virtio-dm"
 version = "0.1.0"
 edition = "2021"
 authors = ["João Peixoto <joaopeixotooficial@gmail.com>"]

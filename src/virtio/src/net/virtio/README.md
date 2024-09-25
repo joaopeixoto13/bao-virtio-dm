@@ -71,7 +71,7 @@ ifconfig
 4. **Launch the device model with the virtio-net device**: To launch the device model in the background type:
 
 ```
-nohup bao-virtio --config /PATH/TO/YOUR/config-virtio-net.yaml > /etc/bao-virtio.log 2>&1 &
+nohup bao-virtio-dm --config /PATH/TO/YOUR/config-virtio-net.yaml > /etc/bao-virtio-dm.log 2>&1 &
 ```
 
 In the **Frontend VM**, you can use the command `ethtool` to verify the virtual network interface (e.g. `eth0`) configuration:

@@ -41,5 +41,5 @@ nohup virtiofsd --socket-path=/root/Fs.sock --shared-dir /mnt --tag=myfs --annou
 4. Launch the **device model** with the vhost-user virtual filesystem frontend device:
 
 ```
-nohup bao-virtio --config /PATH/TO/YOUR/config-virtio-fs.yaml > /etc/bao-virtio.log 2>&1 &
+nohup bao-virtio-dm --config /PATH/TO/YOUR/config-virtio-fs.yaml > /etc/bao-virtio-dm.log 2>&1 &
 ```

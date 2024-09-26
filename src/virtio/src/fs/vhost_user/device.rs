@@ -51,9 +51,10 @@ impl VirtioDeviceT for VhostUserFs {
         // Create the vhost-user configuration.
         let vu_cfg = VhostUserConfig {
             socket: format!(
-                "{}{}.sock",
+                "{}{}{}.sock",
                 config.socket_path.as_ref().unwrap(),
-                VirtioDevType::from(VirtioDevType::Fs).to_string()
+                VirtioDevType::from(VirtioDevType::Fs).to_string(),
+                config.id
             ),
             num_queues: queues.len(),
             queue_size: queues[0].size(),

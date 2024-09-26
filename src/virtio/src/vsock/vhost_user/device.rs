@@ -50,9 +50,10 @@ impl VirtioDeviceT for VhostUserVsock {
         // Create the vhost-user configuration.
         let vu_cfg = VhostUserConfig {
             socket: format!(
-                "{}{}.sock",
+                "{}{}{}.sock",
                 config.socket_path.as_ref().unwrap(),
-                VirtioDevType::from(VirtioDevType::Vsock).to_string()
+                VirtioDevType::from(VirtioDevType::Vsock).to_string(),
+                config.id
             ),
             num_queues: 2, // The Rust-VMM backend (https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-vsock) does not supports event queues yet.
             queue_size: queues[0].size(),

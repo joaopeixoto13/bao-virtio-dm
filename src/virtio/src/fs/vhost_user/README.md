@@ -31,7 +31,7 @@ devices:
 
 3. Launch your **standalone vhost-user** virtual filesystem device:
 ```
-nohup virtiofsd --socket-path=/root/Fs.sock --shared-dir /mnt --tag=myfs --announce-submounts --sandbox chroot > /etc/vhost-device-virtiofsd.log 2>&1 &
+nohup virtiofsd --socket-path=/root/Fs0.sock --shared-dir /mnt --tag=myfs --announce-submounts --sandbox chroot > /etc/vhost-device-virtiofsd.log 2>&1 &
 ```
 
 4. Launch the **device model** with the vhost-user virtual filesystem frontend device:

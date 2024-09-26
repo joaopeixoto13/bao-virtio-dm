@@ -348,7 +348,7 @@ checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
 [[package]]
 name = "vhost"
 version = "0.10.0"
-source = "git+https://github.com/joaopeixoto13/vhost?branch=vhost-user-frontend#cf0c49322d8bff5f55591421298c9cb6699279a1"
+source = "git+https://github.com/joaopeixoto13/vhost?branch=vhost-user-frontend#30a1e665079b8e4ca9c76219de2e2c6b5b28f568"
 dependencies = [
  "bitflags 2.5.0",
  "libc",
@@ -359,7 +359,7 @@ dependencies = [
 [[package]]
 name = "vhost-user-frontend"
 version = "0.1.0"
-source = "git+https://github.com/joaopeixoto13/vhost?branch=vhost-user-frontend#cf0c49322d8bff5f55591421298c9cb6699279a1"
+source = "git+https://github.com/joaopeixoto13/vhost?branch=vhost-user-frontend#30a1e665079b8e4ca9c76219de2e2c6b5b28f568"
 dependencies = [
  "epoll",
  "libc",

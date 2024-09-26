@@ -54,7 +54,7 @@ impl VirtioDeviceT for VhostUserVsock {
                 config.socket_path.as_ref().unwrap(),
                 VirtioDevType::from(VirtioDevType::Vsock).to_string()
             ),
-            num_queues: 1, // Currently, multiple queues are not supported by the vhost-user backend (feature `VhostUserProtocolFeatures::MQ` not negotiated).
+            num_queues: 2, // The Rust-VMM backend (https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-vsock) does not supports event queues yet.
             queue_size: queues[0].size(),
         };
 
@@ -116,9 +116,10 @@ impl VirtioDeviceT for VhostUserVsock {
         Ok(0)
     }
 
-    fn config_space(config: &DeviceConfig) -> Result<Vec<u8>> {
-        // Retrieve the guest CID from the device configuration space.
-        Ok(config.guest_cid.unwrap().to_le_bytes().to_vec())
+    fn config_space(_config: &DeviceConfig) -> Result<Vec<u8>> {
+        // Here we can leave empty since the vhost-user backend device is responsible for managing the configuration space.
+        // VhostUserProtocolFeatures::CONFIG
+        Ok(Vec::new())
     }
 }
 
@@ -163,7 +164,7 @@ impl VirtioDeviceActions for VhostUserVsock {
             .queues
             .iter()
             .enumerate()
-            .take(1) // Currently, multiple queues are not supported by the vhost-user backend (feature `VhostUserProtocolFeatures::MQ` not negotiated).
+            .take(2) // The Rust-VMM backend (https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-vsock) does not supports event queues yet.
             .zip(ioevents)
             .map(|((i, queue), ioevent)| (i, queue.clone(), ioevent))
             .collect::<Vec<_>>();

@@ -35,7 +35,7 @@ The full list of supported (and work in progress) devices is presented below:
 | Vhost-Net        | [Net](src/virtio/src/net/README.md)            | Vhost   | - |
 | Virtio-Vsock       | [Vsock](src/virtio/src/vsock/README.md)            | VirtIO   | - |
 | Vhost-Vsock       | [Vsock](src/virtio/src/vsock/README.md)            | Vhost   | [x](src/virtio/src/vsock/vhost/README.md) |
-| Vhost-User-Vsock       | [Vsock](src/virtio/src/vsock/README.md)            | Vhost-user   | - |
+| Vhost-User-Vsock       | [Vsock](src/virtio/src/vsock/README.md)            | Vhost-user   | [x](src/virtio/src/vsock/vhost_user/README.md) |
 
 ## Contributing
 Contributions to enhance the functionality and features of Bao Hypervisor VirtIO Device 

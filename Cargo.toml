@@ -29,7 +29,6 @@ vmm = { path = "src/vmm" }
 # The [patch] section is used to override dependencies with custom implementations
 
 [patch.crates-io]
-vm-memory = { git = "https://github.com/joaopeixoto13/vm-memory", branch = "bao-hypervisor" }
 vhost = { git = "https://github.com/joaopeixoto13/vhost", branch = "vhost-user-frontend" }
 virtio-queue = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "bao-hypervisor" }
 virtio-device = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "bao-hypervisor" }

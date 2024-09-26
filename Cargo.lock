@@ -469,8 +469,9 @@ checksum = "599adbdaddea4947ca23c085d2b8e47f3499ccda35438424526f3853748a8eb6"
 
 [[package]]
 name = "vm-memory"
-version = "0.14.0"
-source = "git+https://github.com/joaopeixoto13/vm-memory?branch=bao-hypervisor#5e5e60591e8d904f5d4966980d442c04daa14599"
+version = "0.14.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c3aba5064cc5f6f7740cddc8dae34d2d9a311cac69b60d942af7f3ab8fc49f4"
 dependencies = [
  "arc-swap",
  "libc",

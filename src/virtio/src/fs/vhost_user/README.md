@@ -22,11 +22,7 @@ devices:
     # --- VirtIO Common ---
   - id: 0
     type: "fs"
-    shmem_addr: 0x50000000
-    shmem_size: 0x01000000
-    shmem_path: "/dev/baoipc0"
     mmio_addr: 0xa003e00
-    irq: 47
     data_plane: vhost_user
     # --- Vhost-user specific ---
     socket_path: "/root/"

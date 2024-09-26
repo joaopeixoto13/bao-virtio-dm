@@ -18,7 +18,7 @@ devices:
 
 2. Launch the [vhost-user vsock backend](https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-vsock):
 ```
-nohup vhost-device-vsock --vm guest-cid=4,uds-path=/tmp/vm4.vsock,socket=/tmp/Vsock.sock > /etc/vhost-vsock.log 2>&1 &
+nohup vhost-device-vsock --vm guest-cid=4,uds-path=/tmp/vm4.vsock,socket=/tmp/Vsock0.sock > /etc/vhost-vsock.log 2>&1 &
 ```
 
 3. Launch the device model:

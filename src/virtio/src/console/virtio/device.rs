@@ -1,4 +1,5 @@
 use super::console_handler::ConsoleQueueHandler;
+use super::pty_handler::PtyHandler;
 use super::queue_handler::QueueHandler;
 use crate::device::{SingleFdSignalQueue, Subscriber, VirtioDeviceT};
 use crate::device::{VirtioDevType, VirtioDeviceCommon};
@@ -9,6 +10,7 @@ use event_manager::{
     EventManager, MutEventSubscriber, RemoteEndpoint, Result as EvmgrResult, SubscriberId,
 };
 use std::borrow::{Borrow, BorrowMut};
+use std::os::unix::net::UnixStream;
 use std::sync::{Arc, Mutex};
 use virtio_bindings::virtio_config::VIRTIO_F_IN_ORDER;
 use virtio_console::console::Console;
@@ -27,6 +29,7 @@ use vm_device::MutDeviceMmio;
 pub struct VirtioConsole {
     pub common: VirtioDeviceCommon,
     pub endpoint: RemoteEndpoint<Subscriber>,
+    pub config: DeviceConfig,
 }
 
 impl VirtioDeviceT for VirtioConsole {
@@ -58,6 +61,7 @@ impl VirtioDeviceT for VirtioConsole {
         let console = Arc::new(Mutex::new(VirtioConsole {
             common: common_device,
             endpoint: remote_endpoint,
+            config: config.clone(),
         }));
 
         // Register the MMIO device within the device manager with the specified range.
@@ -114,8 +118,12 @@ impl VirtioDeviceActions for VirtioConsole {
     type E = Error;
 
     fn activate(&mut self) -> Result<()> {
+        // Create socket to act as console output and forward it to pty
+        let (socket_out, socket_in) = UnixStream::pair().unwrap();
+        socket_in.set_nonblocking(true).unwrap();
+
         // Create the backend.
-        let console = Console::default();
+        let console = Arc::new(Mutex::new(Console::new(socket_out)));
 
         // Create the driver notify object.
         let driver_notify = SingleFdSignalQueue {
@@ -132,14 +140,16 @@ impl VirtioDeviceActions for VirtioConsole {
             mem: self.common.mem(),
             input_queue: self.common.config.queues.remove(0),
             output_queue: self.common.config.queues.remove(0),
-            console,
+            console: Arc::clone(&console),
         };
 
         // Create the queue handler.
+        let input_ioeventfd = ioevents.remove(0);
+        let output_ioeventfd = ioevents.remove(0);
         let handler = Arc::new(Mutex::new(QueueHandler {
             inner,
-            input_ioeventfd: ioevents.remove(0),
-            output_ioeventfd: ioevents.remove(0),
+            input_ioeventfd: input_ioeventfd.try_clone().unwrap(),
+            output_ioeventfd,
         }));
 
         // Register the queue handler with the `EventManager`. We could record the `sub_id`
@@ -149,6 +159,20 @@ impl VirtioDeviceActions for VirtioConsole {
             .endpoint
             .call_blocking(move |mgr| -> EvmgrResult<SubscriberId> {
                 Ok(mgr.add_subscriber(handler))
+            })
+            .unwrap();
+
+        // Create pty handler and register it as a event subscriber
+        let pty_handler = Arc::new(Mutex::new(PtyHandler::new(
+            socket_in,
+            Arc::clone(&console),
+            input_ioeventfd,
+            &self.config,
+        )));
+
+        self.endpoint
+            .call_blocking(|mgr| -> EvmgrResult<SubscriberId> {
+                Ok(mgr.add_subscriber(pty_handler))
             })
             .unwrap();
 

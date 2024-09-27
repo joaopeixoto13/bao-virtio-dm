@@ -80,7 +80,14 @@ impl VirtioDeviceT for VirtioConsole {
 
     fn config_space(_config: &DeviceConfig) -> Result<Vec<u8>> {
         // https://docs.oasis-open.org/virtio/virtio/v1.3/csd01/virtio-v1.3-csd01.html#x1-3210003
-        Ok(Vec::new())
+        let cols: u16 = 80;
+        let rows: u16 = 25;
+        let max_nr_ports: u32 = 1;
+        let mut config = Vec::new();
+        config.extend_from_slice(&cols.to_le_bytes());
+        config.extend_from_slice(&rows.to_le_bytes());
+        config.extend_from_slice(&max_nr_ports.to_le_bytes());
+        Ok(config)
     }
 }
 

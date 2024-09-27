@@ -1,5 +1,7 @@
 use event_manager::{EventOps, Events, MutEventSubscriber};
 use log::error;
+use std::io::Write;
+use vm_memory::WriteVolatile;
 use vmm_sys_util::epoll::EventSet;
 use vmm_sys_util::eventfd::EventFd;
 
@@ -16,13 +18,16 @@ const OUTPUT_IOEVENT_DATA: u32 = OUTPUT_QUEUE_INDEX as u32;
 // signalling implementation based on `EventFd`s, and then also implements `MutEventSubscriber`
 // to interact with the event manager. `ioeventfd` is the `EventFd` connected to queue
 // notifications coming from the driver.
-pub(crate) struct QueueHandler {
-    pub inner: ConsoleQueueHandler<SingleFdSignalQueue>,
+pub(crate) struct QueueHandler<W: Write + WriteVolatile> {
+    pub inner: ConsoleQueueHandler<SingleFdSignalQueue, W>,
     pub input_ioeventfd: EventFd,
     pub output_ioeventfd: EventFd,
 }
 
-impl QueueHandler {
+impl<W> QueueHandler<W>
+where
+    W: Write + WriteVolatile,
+{
     // Helper method that receives an error message to be logged and the `ops` handle
     // which is used to unregister all events.
     fn handle_error<S: AsRef<str>>(&self, s: S, ops: &mut EventOps) {
@@ -36,7 +41,10 @@ impl QueueHandler {
 
 /// Implement the `MutEventSubscriber` trait for `QueueHandler` to handle the dispatched
 /// events (Ioeventfds) from the event manager.
-impl MutEventSubscriber for QueueHandler {
+impl<W> MutEventSubscriber for QueueHandler<W>
+where
+    W: Write + WriteVolatile,
+{
     fn process(&mut self, events: Events, ops: &mut EventOps) {
         if events.event_set() != EventSet::IN {
             self.handle_error("Unexpected event_set", ops);

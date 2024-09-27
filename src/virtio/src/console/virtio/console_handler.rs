@@ -1,24 +1,26 @@
 use super::queue_handler::{INPUT_QUEUE_INDEX, OUTPUT_QUEUE_INDEX};
 use crate::device::SignalUsedQueue;
-use std::io::Stdout;
+use std::io::Write;
 use std::result;
 use virtio_console::console::{Console, Error as ConsoleError};
 use virtio_queue::{Queue, QueueOwnedT, QueueT};
 use vm_memory::bitmap::AtomicBitmap;
+use vm_memory::WriteVolatile;
 
 type GuestMemoryMmap = vm_memory::GuestMemoryMmap<AtomicBitmap>;
 
-pub struct ConsoleQueueHandler<S: SignalUsedQueue> {
+pub struct ConsoleQueueHandler<S: SignalUsedQueue, W: Write + WriteVolatile> {
     pub driver_notify: S,
     pub mem: GuestMemoryMmap,
     pub input_queue: Queue,
     pub output_queue: Queue,
-    pub console: Console<Stdout>,
+    pub console: Console<W>,
 }
 
-impl<S> ConsoleQueueHandler<S>
+impl<S, W> ConsoleQueueHandler<S, W>
 where
     S: SignalUsedQueue,
+    W: Write + WriteVolatile,
 {
     /*
      * Each port of virtio console device has one receive

@@ -2,6 +2,7 @@ use super::queue_handler::{INPUT_QUEUE_INDEX, OUTPUT_QUEUE_INDEX};
 use crate::device::SignalUsedQueue;
 use std::io::Write;
 use std::result;
+use std::sync::{Arc, Mutex};
 use virtio_console::console::{Console, Error as ConsoleError};
 use virtio_queue::{Queue, QueueOwnedT, QueueT};
 use vm_memory::bitmap::AtomicBitmap;
@@ -14,7 +15,7 @@ pub struct ConsoleQueueHandler<S: SignalUsedQueue, W: Write + WriteVolatile> {
     pub mem: GuestMemoryMmap,
     pub input_queue: Queue,
     pub output_queue: Queue,
-    pub console: Console<W>,
+    pub console: Arc<Mutex<Console<W>>>,
 }
 
 impl<S, W> ConsoleQueueHandler<S, W>
@@ -32,17 +33,21 @@ where
         // To see why this is done in a loop, please look at the `Queue::enable_notification`
         // comments in `virtio_queue`.
         loop {
-            if self.console.is_input_buffer_empty() {
+            if self.console.lock().unwrap().is_input_buffer_empty() {
                 break;
             }
 
             // Disable the notifications.
             self.input_queue.disable_notification(&self.mem)?;
 
-            while !self.console.is_input_buffer_empty() {
+            while !self.console.lock().unwrap().is_input_buffer_empty() {
                 // Process the queue.
                 if let Some(mut chain) = self.input_queue.iter(&self.mem.clone())?.next() {
-                    let sent_bytes = self.console.process_receiveq_chain(&mut chain)?;
+                    let sent_bytes = self
+                        .console
+                        .lock()
+                        .unwrap()
+                        .process_receiveq_chain(&mut chain)?;
 
                     if sent_bytes > 0 {
                         self.input_queue.add_used(
@@ -85,7 +90,10 @@ where
 
             // Process the queue.
             while let Some(mut chain) = self.output_queue.iter(&self.mem.clone())?.next() {
-                self.console.process_transmitq_chain(&mut chain)?;
+                self.console
+                    .lock()
+                    .unwrap()
+                    .process_transmitq_chain(&mut chain)?;
 
                 self.output_queue
                     .add_used(chain.memory(), chain.head_index(), 0)?;

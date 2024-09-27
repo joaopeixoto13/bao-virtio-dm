@@ -84,7 +84,7 @@ pub struct BaoDMInfo {
     pub fd: i32,
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 /// Struct representing a Device configuration.
 ///
 /// # Attributes
@@ -123,6 +123,8 @@ pub struct DeviceConfig {
     pub guest_cid: Option<u64>,
     // Vhost-user device specific fields
     pub socket_path: Option<String>,
+    // Console device specific fields
+    pub pty_alias: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]

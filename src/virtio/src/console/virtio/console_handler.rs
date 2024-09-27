@@ -32,22 +32,32 @@ where
         // To see why this is done in a loop, please look at the `Queue::enable_notification`
         // comments in `virtio_queue`.
         loop {
+            if self.console.is_input_buffer_empty() {
+                break;
+            }
+
             // Disable the notifications.
             self.input_queue.disable_notification(&self.mem)?;
 
-            // Process the queue.
-            while let Some(mut chain) = self.input_queue.iter(&self.mem.clone())?.next() {
-                let sent_bytes = self.console.process_receiveq_chain(&mut chain)?;
-                //println!("Sent bytes: {}", sent_bytes);
+            while !self.console.is_input_buffer_empty() {
+                // Process the queue.
+                if let Some(mut chain) = self.input_queue.iter(&self.mem.clone())?.next() {
+                    let sent_bytes = self.console.process_receiveq_chain(&mut chain)?;
 
-                if sent_bytes > 0 {
-                    println!("process_input_queue bytes: {}", sent_bytes);
-                    self.input_queue
-                        .add_used(chain.memory(), chain.head_index(), sent_bytes)?;
-
-                    if self.input_queue.needs_notification(&self.mem)? {
-                        self.driver_notify.signal_used_queue(INPUT_QUEUE_INDEX);
+                    if sent_bytes > 0 {
+                        self.input_queue.add_used(
+                            chain.memory(),
+                            chain.head_index(),
+                            sent_bytes,
+                        )?;
+                        if self.input_queue.needs_notification(&self.mem)? {
+                            self.driver_notify.signal_used_queue(INPUT_QUEUE_INDEX);
+                        }
+                    } else {
+                        break;
                     }
+                } else {
+                    break;
                 }
             }
 

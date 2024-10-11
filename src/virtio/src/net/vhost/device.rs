@@ -1,3 +1,4 @@
+use crate::device::clone_queue;
 use crate::device::VirtioDeviceT;
 use crate::device::{VirtioDevType, VirtioDeviceCommon};
 use crate::mmio::VIRTIO_MMIO_INT_VRING;
@@ -170,7 +171,7 @@ impl VirtioDeviceActions for VhostNet {
             .iter()
             .enumerate()
             .zip(ioevents)
-            .map(|((i, queue), ioevent)| (i, queue.clone(), ioevent))
+            .map(|((i, queue), ioevent)| (i, clone_queue(&queue), ioevent))
             .collect::<Vec<_>>();
 
         // Set the current process as the owner of the file descriptor.

@@ -1,3 +1,4 @@
+use crate::device::clone_queue;
 use crate::device::{SingleFdSignalQueue, VirtioDeviceT};
 use crate::device::{VirtioDevType, VirtioDeviceCommon};
 use crate::mmio::VIRTIO_MMIO_INT_VRING;
@@ -165,7 +166,7 @@ impl VirtioDeviceActions for VhostUserFs {
             .iter()
             .enumerate()
             .zip(ioevents)
-            .map(|((i, queue), ioevent)| (i, queue.clone(), ioevent))
+            .map(|((i, queue), ioevent)| (i, clone_queue(&queue), ioevent))
             .collect::<Vec<_>>();
 
         // Activate the vhost-user device.

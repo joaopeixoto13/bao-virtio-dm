@@ -1,5 +1,6 @@
 use super::packet_handler::VsockPacketHandler;
 use super::queue_handler::QueueHandler;
+use crate::device::clone_queue;
 use crate::device::{SingleFdSignalQueue, Subscriber, VirtioDeviceT};
 use crate::device::{VirtioDevType, VirtioDeviceCommon};
 use api::device_model::BaoDeviceModel;
@@ -116,11 +117,20 @@ impl VirtioDeviceActions for VirtioVsock {
         // Prepare the activation by calling the generic `prepare_activate` method.
         let ioevents = self.common.prepare_activate().unwrap();
 
+        // Clone the queues.
+        let queues = self
+            .common
+            .config
+            .queues
+            .iter()
+            .map(|queue| (clone_queue(&queue)))
+            .collect::<Vec<_>>();
+
         // Create the inner handler.
         let inner = VsockPacketHandler {
             driver_notify,
             mem: self.common.mem(),
-            queues: self.common.config.queues.clone(),
+            queues: queues,
         };
 
         // Create the queue handler.

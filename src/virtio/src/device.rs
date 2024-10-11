@@ -557,3 +557,22 @@ impl fmt::Display for VirtioDataPlane {
         )
     }
 }
+
+/// Helper for cloning a Queue since QueueState doesn't derive Clone
+pub fn clone_queue(queue: &Queue) -> Queue {
+    let mut q = Queue::new(queue.max_size()).unwrap();
+
+    q.set_next_avail(queue.next_avail());
+    q.set_next_used(queue.next_used());
+    q.set_event_idx(queue.event_idx_enabled());
+    q.set_size(queue.size());
+    q.set_ready(queue.ready());
+    q.try_set_desc_table_address(GuestAddress(queue.desc_table()))
+        .unwrap();
+    q.try_set_avail_ring_address(GuestAddress(queue.avail_ring()))
+        .unwrap();
+    q.try_set_used_ring_address(GuestAddress(queue.used_ring()))
+        .unwrap();
+
+    q
+}

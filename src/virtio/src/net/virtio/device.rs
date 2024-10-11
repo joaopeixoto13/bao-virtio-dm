@@ -2,6 +2,7 @@ use super::bindings;
 use super::queue_handler::QueueHandler;
 use super::simple_handler::SimpleHandler;
 use super::tap::Tap;
+use crate::device::clone_queue;
 use crate::device::{SingleFdSignalQueue, Subscriber, VirtioDeviceT};
 use crate::device::{VirtioDevType, VirtioDeviceCommon};
 use crate::net::utils::mac_address_to_bytes;
@@ -169,9 +170,8 @@ impl VirtioDeviceActions for VirtioNet {
         let mut ioevents = self.common.prepare_activate()?;
 
         // Create the inner handler.
-        let mut queues = self.common.config.queues.clone();
-        let rxq = queues.remove(0);
-        let txq = queues.remove(0);
+        let rxq = clone_queue(&self.common.config.queues[0]);
+        let txq = clone_queue(&self.common.config.queues[1]);
         let inner = SimpleHandler::new(driver_notify, rxq, txq, tap, self.common.mem());
 
         // Create the queue handler.

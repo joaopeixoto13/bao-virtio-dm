@@ -16,7 +16,7 @@ serde_yaml = "0.8"
 thiserror = "1.0"
 libc = ">=0.2.95"
 vmm-sys-util = "0.12.1"
-vhost-user-frontend = { git = "https://github.com/joaopeixoto13/vhost", branch = "vhost-user-frontend" }
+vhost-user-frontend = { git = "https://github.com/joaopeixoto13/vhost", branch = "vhost-user-frontend-v0.12.0" }
 event-manager = { version = "0.4.0", features = ["remote_endpoint"] }
 aarch64-cpu = "9.4.0"
 vm-memory = { version = "0.15.0", features = ["backend-mmap", "backend-atomic", "backend-bitmap"] }

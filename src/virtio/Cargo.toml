@@ -19,8 +19,8 @@ virtio-device = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "
 virtio-blk = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "virtio-actions", features = ["backend-stdio"] }
 virtio-vsock = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "virtio-actions" }
 virtio-console = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "virtio-actions" }
-vhost = { version = "0.10.0", features = ["vhost-user-frontend", "vhost-kern", "vhost-user-backend", "vhost-vsock", "vhost-net"] }
-vhost-user-frontend = { git = "https://github.com/joaopeixoto13/vhost", branch = "vhost-user-frontend" }
+vhost = { version = "0.12.0", features = ["vhost-user-frontend", "vhost-kern", "vhost-user-backend", "vhost-vsock", "vhost-net"] }
+vhost-user-frontend = { git = "https://github.com/joaopeixoto13/vhost", branch = "vhost-user-frontend-v0.12.0" }
 vm-memory = { version = "0.15.0", features = ["backend-mmap", "backend-atomic", "backend-bitmap"] }
 api = { path = "../api" }
 libc = ">=0.2.95"

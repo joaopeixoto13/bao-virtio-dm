@@ -12,7 +12,7 @@ license = "Apache-2.0"
 [dependencies]
 event-manager = { version = "0.4.0", features = ["remote_endpoint"] }
 vm-device = "0.1.0"
-virtio-queue = "0.11.0"
+virtio-queue = "0.13.0"
 virtio-bindings = "0.2.1"
 vmm-sys-util = "0.12.1"
 virtio-device = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "virtio-actions" }

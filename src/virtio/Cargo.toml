@@ -21,7 +21,7 @@ virtio-vsock = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "b
 virtio-console = { git = "https://github.com/joaopeixoto13/vm-virtio", branch = "bao-hypervisor" }
 vhost = { version = "0.10.0", features = ["vhost-user-frontend", "vhost-kern", "vhost-user-backend", "vhost-vsock", "vhost-net"] }
 vhost-user-frontend = { git = "https://github.com/joaopeixoto13/vhost", branch = "vhost-user-frontend" }
-vm-memory = { version = "0.14.0", features = ["backend-mmap", "backend-atomic", "backend-bitmap"] }
+vm-memory = { version = "0.15.0", features = ["backend-mmap", "backend-atomic", "backend-bitmap"] }
 api = { path = "../api" }
 libc = ">=0.2.95"
 seccompiler = "0.2.0"

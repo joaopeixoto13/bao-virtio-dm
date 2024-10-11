@@ -24,7 +24,7 @@ dependencies = [
  "serde_yaml",
  "thiserror",
  "vhost-user-frontend",
- "vm-memory",
+ "vm-memory 0.15.0",
  "vmm-sys-util",
 ]
 
@@ -352,7 +352,7 @@ source = "git+https://github.com/joaopeixoto13/vhost?branch=vhost-user-frontend#
 dependencies = [
  "bitflags 2.5.0",
  "libc",
- "vm-memory",
+ "vm-memory 0.14.1",
  "vmm-sys-util",
 ]
 
@@ -369,7 +369,7 @@ dependencies = [
  "vhost",
  "virtio-bindings 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "virtio-queue",
- "vm-memory",
+ "vm-memory 0.14.1",
  "vmm-sys-util",
 ]
 
@@ -391,7 +391,7 @@ dependencies = [
  "virtio-queue",
  "virtio-vsock",
  "vm-device",
- "vm-memory",
+ "vm-memory 0.15.0",
  "vmm-sys-util",
 ]
 
@@ -415,7 +415,7 @@ dependencies = [
  "virtio-bindings 0.2.2 (git+https://github.com/joaopeixoto13/vm-virtio?branch=bao-hypervisor)",
  "virtio-device",
  "virtio-queue",
- "vm-memory",
+ "vm-memory 0.14.1",
  "vmm-sys-util",
 ]
 
@@ -426,7 +426,7 @@ source = "git+https://github.com/joaopeixoto13/vm-virtio?branch=bao-hypervisor#e
 dependencies = [
  "virtio-bindings 0.2.2 (git+https://github.com/joaopeixoto13/vm-virtio?branch=bao-hypervisor)",
  "virtio-queue",
- "vm-memory",
+ "vm-memory 0.14.1",
 ]
 
 [[package]]
@@ -437,7 +437,7 @@ dependencies = [
  "log",
  "virtio-bindings 0.2.2 (git+https://github.com/joaopeixoto13/vm-virtio?branch=bao-hypervisor)",
  "virtio-queue",
- "vm-memory",
+ "vm-memory 0.14.1",
 ]
 
 [[package]]
@@ -447,7 +447,7 @@ source = "git+https://github.com/joaopeixoto13/vm-virtio?branch=bao-hypervisor#e
 dependencies = [
  "log",
  "virtio-bindings 0.2.2 (git+https://github.com/joaopeixoto13/vm-virtio?branch=bao-hypervisor)",
- "vm-memory",
+ "vm-memory 0.14.1",
  "vmm-sys-util",
 ]
 
@@ -458,7 +458,7 @@ source = "git+https://github.com/joaopeixoto13/vm-virtio?branch=bao-hypervisor#e
 dependencies = [
  "virtio-bindings 0.2.2 (git+https://github.com/joaopeixoto13/vm-virtio?branch=bao-hypervisor)",
  "virtio-queue",
- "vm-memory",
+ "vm-memory 0.14.1",
 ]
 
 [[package]]
@@ -472,6 +472,18 @@ name = "vm-memory"
 version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c3aba5064cc5f6f7740cddc8dae34d2d9a311cac69b60d942af7f3ab8fc49f4"
+dependencies = [
+ "arc-swap",
+ "libc",
+ "thiserror",
+ "winapi",
+]
+
+[[package]]
+name = "vm-memory"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a320fc11792e063174402ff444aa3c80363cbf1e31c47b5ef74124406c334ce6"
 dependencies = [
  "arc-swap",
  "libc",

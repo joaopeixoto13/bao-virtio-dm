@@ -89,7 +89,6 @@ impl BaoDeviceModel {
             value: 0,
             access_width: 0,
             request_id: 0,
-            ret: 0,
         };
         unsafe {
             let ret = ioctl(self.devmodel_fd, BAO_IOCTL_IO_ATTACH_CLIENT(), &mut request);

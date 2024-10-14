@@ -19,7 +19,6 @@ use serde::{Deserialize, Serialize};
 /// * `value` - Value.
 /// * `access_width` - Access width.
 /// * `request_id` - Request ID.
-/// * `ret` - Return value.
 #[repr(C)]
 #[derive(Debug)]
 pub struct BaoIoRequest {
@@ -29,7 +28,6 @@ pub struct BaoIoRequest {
     pub value: u64,
     pub access_width: u64,
     pub request_id: u64,
-    pub ret: i32,
 }
 
 /// Struct representing a Bao I/O event file descriptor.

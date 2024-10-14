@@ -57,9 +57,9 @@ mod tests {
     /// Tests the BAO IOCTLs constants.
     #[test]
     fn test_ioctls() {
-        assert_eq!(0xC040_A601, BAO_IOCTL_IO_DM_GET_INFO());
-        assert_eq!(0xC040_A602, BAO_IOCTL_IO_ATTACH_CLIENT());
-        assert_eq!(0x4040_A603, BAO_IOCTL_IO_REQUEST_NOTIFY_COMPLETED());
+        assert_eq!(0xC020_A601, BAO_IOCTL_IO_DM_GET_INFO());
+        assert_eq!(0xC030_A602, BAO_IOCTL_IO_ATTACH_CLIENT());
+        assert_eq!(0x4030_A603, BAO_IOCTL_IO_REQUEST_NOTIFY_COMPLETED());
         assert_eq!(0x4020_A604, BAO_IOCTL_IOEVENTFD());
         assert_eq!(0x4008_A605, BAO_IOCTL_IRQFD());
     }

@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// # Attributes
 ///
-/// * `virtio_id` - Virtio instance ID.
+/// * `dm_id` - Device model ID.
 /// * `addr` - Address.
 /// * `op` - Operation.
 /// * `value` - Value.
@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 #[repr(C)]
 #[derive(Debug)]
 pub struct BaoIoRequest {
-    pub virtio_id: u64,
+    pub dm_id: u64,
     pub addr: u64,
     pub op: u64,
     pub value: u64,

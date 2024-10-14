@@ -83,7 +83,7 @@ impl BaoDeviceModel {
     pub fn attach_io_client(&self) -> Result<BaoIoRequest> {
         // Create a new I/O request
         let mut request = BaoIoRequest {
-            virtio_id: 0,
+            dm_id: 0,
             addr: 0,
             op: BAO_IO_ASK,
             value: 0,

@@ -1,0 +1,35 @@
+name: GitLint Check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  gitlint-check:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the code and commit history
+      - name: Checkout the code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch full history so that gitlint can see all commits
+
+      # Step 2: Install GitLint
+      - name: Install GitLint
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install gitlint
+
+      # Step 3: Verify .gitlint file is present
+      - name: Check if .gitlint config exists
+        run: |
+          if [ ! -f ".gitlint" ]; then
+            echo ".gitlint configuration file not found!"
+            exit 1
+          fi
+
+      # Step 4: Run GitLint
+      - name: Run gitlint
+        run: gitlint --config .gitlint

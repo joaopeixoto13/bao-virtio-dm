@@ -1,7 +1,8 @@
-use std::fs::{File, OpenOptions};
+use std::fs::{read_dir, read_link, File, OpenOptions};
 use std::io::{Read, Write};
 use std::os::fd::AsRawFd;
 use std::os::unix::fs::OpenOptionsExt;
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 use api::types::DeviceConfig;
@@ -20,6 +21,7 @@ const BUFFER_SIZE: usize = 128;
 
 pub(super) struct PtyHandler<W: Write + WriteVolatile> {
     pub pty: File,
+    pub pty_path: String,
     pub socket: UnixStream,
     pub console: Arc<Mutex<Console<W>>>,
     pub input_ioeventfd: EventFd,
@@ -61,10 +63,51 @@ where
 
         Self {
             pty,
+            pty_path,
             socket,
             console,
             input_ioeventfd,
         }
+    }
+
+    /// Check if the PTY is currently open by any process (e.g., picocom / minicom)
+    fn is_opened(&self) -> std::io::Result<bool> {
+        let pty_path = Path::new(self.pty_path.as_str());
+        let proc_dir = Path::new("/proc");
+
+        // Iterate through the process directories in /proc
+        for entry in read_dir(proc_dir)? {
+            let entry = entry?;
+            let pid_dir = entry.path();
+
+            // Skip entries that are not directories or are not numeric (non-process directories)
+            if !pid_dir.is_dir() {
+                continue;
+            }
+
+            if let Some(pid) = pid_dir.file_name().and_then(|name| name.to_str()) {
+                if pid.chars().all(|c| c.is_digit(10)) {
+                    // Construct the path to the fd directory
+                    let fd_dir = pid_dir.join("fd");
+
+                    // Iterate through file descriptors
+                    if let Ok(fds) = read_dir(fd_dir) {
+                        for fd in fds {
+                            if let Ok(fd) = fd {
+                                // Resolve the symlink to get the actual file path
+                                if let Ok(link_path) = read_link(fd.path()) {
+                                    if link_path == pty_path {
+                                        return Ok(true); // PTY is open
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(false) // No process has opened the PTY
     }
 }
 
@@ -95,8 +138,14 @@ where
             SOURCE_PTY => {
                 while let Ok(n) = self.pty.read(&mut buf) {
                     let mut v: Vec<_> = buf[..n].iter().cloned().collect();
-                    self.console.lock().unwrap().enqueue_data(&mut v).unwrap();
-                    self.input_ioeventfd.write(1).unwrap();
+                    // TODO: We should understand why the SOURCE_PTY event is not triggered if the backend console is opened.
+                    // (As the `self.pty.write(&v).unwrap();` line within the `SOURCE_SOCKET` event is always executed upon receiving data from the frontend console
+                    // that needs to be written to the backend console, this event should be triggered regardless of the backend console being opened or not.)
+                    // In such cases, we must not enqueue the frontend guest console data (output queue) back to the frontend console (receive queue).
+                    if self.is_opened().unwrap().eq(&true) {
+                        self.console.lock().unwrap().enqueue_data(&mut v).unwrap();
+                        self.input_ioeventfd.write(1).unwrap();
+                    }
                 }
             }
             SOURCE_SOCKET => {
